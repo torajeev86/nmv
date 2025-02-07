@@ -1,0 +1,43 @@
+{
+  "name": "nmv",
+  "version": "1.0.0",
+  "description": "node mongo vue crud operation",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
+    "server:dev": "nodemon server/server.js",
+    "client:dev": "webpack serve --config ./client/webpack.config.js",
+    "build": "npm run client:build && npm run server:build",
+    "client:build": "webpack --config ./client/webpack.config.js --mode production",
+    "server:build": "babel server --out-dir dist --ignore node_modules,.git --presets=@babel/preset-env",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "mongodb": "^6.13.0",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.26.4",
+    "@babel/core": "^7.26.7",
+    "@babel/preset-env": "^7.26.7",
+    "babel-loader": "^9.2.1",
+    "concurrently": "^9.1.2",
+    "css-loader": "^7.1.2",
+    "file-loader": "^6.2.0",
+    "html-webpack-plugin": "^5.6.3",
+    "nodemon": "^3.1.9",
+    "style-loader": "^4.0.0",
+    "vue-loader": "^17.4.2",
+    "vue-template-compiler": "^2.7.16",
+    "webpack": "^5.97.1",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.0"
+  }
+}
