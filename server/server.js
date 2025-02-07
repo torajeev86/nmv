@@ -1,47 +1,65 @@
 const express = require('express');
-const { MongoClient } = require('mongodb');
-const bodyParser = require('body-parser');
-const cors = require('cors'); // Enable CORS
+const mongoose = require('mongoose');
+const cors = require('cors');
 
+// Initialize Express
 const app = express();
-const port = process.env.PORT || 3000;
 
-app.use(cors()); // Use CORS middleware
-app.use(bodyParser.json());
+// Middleware
+app.use(express.json());
+app.use(cors());
 
-// MongoDB connection URL (replace with your MongoDB URI)
-const uri = "mongodb://127.0.0.1:27017"; // Or use a cloud MongoDB URI
-const client = new MongoClient(uri);
+// Connect to MongoDB (replace with your MongoDB URI)
+mongoose.connect('mongodb://127.0.0.1:27017/vue_crud').then(() => console.log('MongoDB connected')).catch(err => console.log(err));
+// Define the schema for data
+const Item = mongoose.model('Item', new mongoose.Schema({
+  name: { type: String, required: true },
+  description: { type: String }
+}));
 
-async function connectToMongo() {
+// CRUD Routes
+
+// Create an item
+app.post('/items', async (req, res) => {
   try {
-    await client.connect();
-    console.log("Connected to MongoDB");
+    const newItem = new Item(req.body);
+    await newItem.save();
+    res.status(201).json(newItem);
   } catch (error) {
-    console.error("Error connecting to MongoDB:", error);
+    res.status(500).json({ error: error.message });
   }
-}
+});
 
-connectToMongo();
-
-const dbName = 'vue_crud'; // Replace with your database name
-const collectionName = 'items'; // Replace with your collection name
-
-// Example CRUD routes
-app.get('/api/items', async (req, res) => {
+// Get all items
+app.get('/items', async (req, res) => {
   try {
-    const db = client.db(dbName);
-    const collection = db.collection(collectionName);
-    const items = await collection.find({}).toArray();
+    const items = await Item.find();
     res.json(items);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to fetch items' });
+    res.status(500).json({ error: error.message });
   }
 });
 
-// ... other CRUD routes (POST, PUT, DELETE)
-
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
+// Update an item
+app.put('/items/:id', async (req, res) => {
+  try {
+    const updatedItem = await Item.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json(updatedItem);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
+
+// Delete an item
+app.delete('/items/:id', async (req, res) => {
+  try {
+    await Item.findByIdAndDelete(req.params.id);
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Start server
+const port = 5000;
+app.listen(port, () => console.log(`Server running on port ${port}`));
